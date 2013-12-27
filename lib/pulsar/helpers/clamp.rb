@@ -169,7 +169,7 @@ module Pulsar
         def run_capistrano(args)
           cmd = "bundle exec cap"
           env = "CONFIG_PATH=#{config_path}"
-          opts = "--file #{capfile_path}"
+          opts = "-f #{capfile_path}"
 
           env += " APP_PATH=#{application_path}" unless application_path.nil?
 

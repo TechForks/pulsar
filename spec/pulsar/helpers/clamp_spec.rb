@@ -58,7 +58,7 @@ describe Pulsar::Helpers::Clamp do
     end
 
     it "runs capistrano when pulsar is invoked from outside the application directory" do
-      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} --file #{capfile_path} deploy", anything)
+      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} -f #{capfile_path} deploy", anything)
 
       run_capistrano("deploy")
     end
@@ -66,7 +66,7 @@ describe Pulsar::Helpers::Clamp do
     it "runs capistrano when pulsar is invoked from inside the application directory" do
       self.stub!(:application_path).and_return("/app/path")
 
-      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} APP_PATH=#{application_path} --file #{capfile_path} deploy", anything)
+      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} APP_PATH=#{application_path} -f #{capfile_path} deploy", anything)
 
       run_capistrano("deploy")
     end
