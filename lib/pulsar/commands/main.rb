@@ -5,8 +5,8 @@ module Pulsar
     include Pulsar::Options::ConfRepo
 
     option [ "-l", "--log-level" ], "LOG LEVEL",
-                                    "how much output will Capistrano print out. Can be any of: important, info, debug, trace",
-                                    :default => "important"
+                                    "how much output will Capistrano print out. Capistrano v3 values are translated to Capistrano v2. Can be any of: trace, debug, info, warn, error, fatal",
+                                    :default => "fatal"
 
     option [ "-s", "--skip-cap-run" ], :flag,
                                        "do everything pulsar does (build a Capfile) but don't run the cap command",

@@ -38,6 +38,16 @@ module Pulsar
           end
         end
 
+        def capistrano_v3?
+          is_version_3 = false
+
+          cd(config_path, :verbose => verbose?) do
+            is_version_3 = run_cmd("bundle list | grep --quiet 'capistrano (3'", :verbose => verbose?, :no_exception => true)
+          end
+
+          is_version_3
+        end
+
         def create_capfile
           touch(capfile_path, :verbose => verbose?)
         end
@@ -149,6 +159,31 @@ module Pulsar
           end
         end
 
+        def log_level_cap_v2
+          levels = {
+            trace: "TRACE",
+            debug: "DEBUG",
+            info: "INFO",
+            warn: "IMPORTANT",
+            error: "IMPORTANT",
+            fatal: "IMPORTANT"
+          }
+
+          level = log_level
+          level = levels.keys.last unless levels.keys.include?(level)
+
+          levels[level]
+        end
+
+        def log_level_cap_v3
+          levels = %w(TRACE DEBUG INFO WARN ERROR FATAL)
+
+          level = log_level.upcase
+          level = levels.last unless levels.include?(level)
+
+          level
+        end
+
         def pulsar_configuration
           conf_file = ".pulsar"
           inside_app = File.join(application_path, conf_file) rescue nil
@@ -179,14 +214,13 @@ module Pulsar
         end
 
         def set_log_level
-          level = log_level.upcase
-          levels = %w(IMPORTANT INFO DEBUG TRACE)
+          cap_config = if capistrano_v3?
+            "set(:log_level, :#{log_level_cap_v3.downcase})"
+          else
+            "logger.level = Capistrano::Logger::#{log_level_cap_v2}"
+          end
 
-          level = levels.first unless levels.include?(level)
-
-          cmd = "echo 'logger.level = logger.level = Capistrano::Logger::#{level}' >> #{capfile_path}"
-
-          run_cmd(cmd, :verbose => verbose?)
+          run_cmd("echo '#{cap_config}' >> #{capfile_path}", :verbose => verbose?)
         end
 
         def supported_env_vars

@@ -19,7 +19,11 @@ module Pulsar
         puts "Command: #{cmd.white}".yellow if opts[:verbose]
         system(cmd)
 
-        raise "Command #{cmd} Failed" if $? != 0
+        unless opts[:no_exception]
+          raise "Command #{cmd} Failed" if $? != 0
+        end
+
+        $?
       end
 
       def touch(file, opts)
