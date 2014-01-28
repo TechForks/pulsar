@@ -1,4 +1,4 @@
-server "staging.your_app.com", :db, :web, :app, :primary => true
+server "your_app.com", roles: %w{db web app}
 
 set :stage, "staging"
 

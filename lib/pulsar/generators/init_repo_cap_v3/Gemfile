@@ -3,5 +3,14 @@ source 'https://rubygems.org'
 gem 'pulsar'
 gem 'capistrano', '~> 3.1'
 
+# Additional Capistrano tasks
+gem 'capistrano-rails', require: 'capistrano/rails'
+gem 'capistrano-bundler', require: 'capistrano/bundler'
+
+# Ruby Version Managers tasks
+# gem 'capistrano/rvm', require: 'capistrano/rvm'
+# gem 'capistrano/rbenv', require: 'capistrano/rbenv'
+# gem 'capistrano/chruby', require: 'capistrano/chruby'
+
 gem 'colored'
 gem 'spinning_cursor'
