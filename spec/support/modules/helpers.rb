@@ -48,10 +48,15 @@ module Helpers
     load "pulsar/commands/main.rb"
 
     stub_bundle_install
+    stub_capistrano_version_check
   end
 
   def stub_bundle_install
     Pulsar::MainCommand.any_instance.stub(:bundle_install)
+  end
+
+  def stub_capistrano_version_check(version = 3)
+    Pulsar::MainCommand.any_instance.stub(:capistrano_v3?).and_return(version == 3)
   end
 
   def stub_dotfile(path, options)

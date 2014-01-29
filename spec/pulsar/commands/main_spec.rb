@@ -270,28 +270,94 @@ describe Pulsar::MainCommand do
       expect { pulsar.parse(base_args + %w(--log-level debug) + dummy_app) }.to_not raise_error(Clamp::UsageError)
     end
 
-    it "supports Capistrano IMPORTANT" do
-      pulsar.run(full_cap_args + %w(--log-level important) + dummy_app)
+    context "when using Capistrano v2" do
+      before { stub_capistrano_version_check(2) }
 
-      latest_capfile.should include("logger.level = logger.level = Capistrano::Logger::IMPORTANT")
+      it "defaults to IMPORTANT" do
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::IMPORTANT")
+      end
+
+      it "uses IMPORTANT when 'fatal'" do
+        pulsar.run(full_cap_args + %w(--log-level fatal) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::IMPORTANT")
+      end
+
+      it "uses IMPORTANT when 'error'" do
+        pulsar.run(full_cap_args + %w(--log-level error) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::IMPORTANT")
+      end
+
+      it "uses IMPORTANT when 'warn'" do
+        pulsar.run(full_cap_args + %w(--log-level warn) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::IMPORTANT")
+      end
+
+      it "uses INFO when 'info'" do
+        pulsar.run(full_cap_args + %w(--log-level info) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::INFO")
+      end
+
+      it "uses DEBUG when 'debug'" do
+        pulsar.run(full_cap_args + %w(--log-level DEBUG) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::DEBUG")
+      end
+
+      it "uses TRACE when 'trace'" do
+        pulsar.run(full_cap_args + %w(--log-level trace) + dummy_app)
+
+        latest_capfile.should include("logger.level = Capistrano::Logger::TRACE")
+      end
     end
 
-    it "supports Capistrano INFO" do
-      pulsar.run(full_cap_args + %w(--log-level info) + dummy_app)
+    context "when using Capistrano v3" do
+      it "defaults to :fatal" do
+        pulsar.run(full_cap_args + dummy_app)
 
-      latest_capfile.should include("logger.level = logger.level = Capistrano::Logger::INFO")
-    end
+        latest_capfile.should include("set(:log_level, :fatal)")
+      end
 
-    it "supports Capistrano DEBUG" do
-      pulsar.run(full_cap_args + %w(--log-level debug) + dummy_app)
+      it "uses :fatal when 'fatal'" do
+        pulsar.run(full_cap_args + %w(--log-level fatal) + dummy_app)
 
-      latest_capfile.should include("logger.level = logger.level = Capistrano::Logger::DEBUG")
-    end
+        latest_capfile.should include("set(:log_level, :fatal)")
+      end
 
-    it "supports Capistrano TRACE" do
-      pulsar.run(full_cap_args + %w(--log-level trace) + dummy_app)
+      it "uses :error when 'error'" do
+        pulsar.run(full_cap_args + %w(--log-level error) + dummy_app)
 
-      latest_capfile.should include("logger.level = logger.level = Capistrano::Logger::TRACE")
+        latest_capfile.should include("set(:log_level, :error)")
+      end
+
+      it "uses :warn when 'warn'" do
+        pulsar.run(full_cap_args + %w(--log-level warn) + dummy_app)
+
+        latest_capfile.should include("set(:log_level, :warn)")
+      end
+
+      it "uses :info when 'info'" do
+        pulsar.run(full_cap_args + %w(--log-level info) + dummy_app)
+
+        latest_capfile.should include("set(:log_level, :info)")
+      end
+
+      it "uses :debug when 'debug'" do
+        pulsar.run(full_cap_args + %w(--log-level debug) + dummy_app)
+
+        latest_capfile.should include("set(:log_level, :debug)")
+      end
+
+      it "uses :trace when 'trace'" do
+        pulsar.run(full_cap_args + %w(--log-level trace) + dummy_app)
+
+        latest_capfile.should include("set(:log_level, :trace)")
+      end
     end
   end
 

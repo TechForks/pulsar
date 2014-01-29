@@ -161,15 +161,15 @@ module Pulsar
 
         def log_level_cap_v2
           levels = {
-            trace: "TRACE",
-            debug: "DEBUG",
-            info: "INFO",
-            warn: "IMPORTANT",
-            error: "IMPORTANT",
-            fatal: "IMPORTANT"
+            "TRACE" => "TRACE",
+            "DEBUG" => "DEBUG",
+            "INFO"  => "INFO",
+            "WARN"  => "IMPORTANT",
+            "ERROR" => "IMPORTANT",
+            "FATAL" => "IMPORTANT"
           }
 
-          level = log_level
+          level = log_level.upcase
           level = levels.keys.last unless levels.keys.include?(level)
 
           levels[level]
