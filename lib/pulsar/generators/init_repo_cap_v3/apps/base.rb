@@ -33,17 +33,13 @@ end
 #
 
 # set :scm, :git
-# set :repo_url, defer { "git@github.com:your_gh_user/#{application}.git" }
+# set :repo_url, "git@github.com:your_gh_user/#{fetch(:application)}.git"
 # set :branch, "master"
-# set :port, 22
-# set :ssh_options, { user: "www-data", forward_agent: true }
-# set :pty, true
-# set :deploy_to, defer { "/var/www/#{application}" }
-# set :deploy_via, :remote_cache
-# set :user, "www-data"
-# set :use_sudo, false
-# set :rake, "bundle exec rake"
-# set :rails_env, defer { "#{stage}" }
+# set :ssh_options, { user: "www-data", forward_agent: true, port: 22 }
+# set :deploy_to, "/var/www/#{fetch(:application)}"
+# set :rails_env, fetch(:stage)
 # set :linked_files, %w{config/database.yml}
 # set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 # set :keep_releases, 5
+# SSHKit.config.command_map[:rake] = "bundle exec rake"
+# SSHKit.config.command_map[:rails] = "bundle exec rails"
