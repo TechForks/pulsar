@@ -57,18 +57,40 @@ describe Pulsar::Helpers::Clamp do
       self.stub!(:capfile_path).and_return('/stubbed/capfile')
     end
 
-    it "runs capistrano when pulsar is invoked from outside the application directory" do
-      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} -f #{capfile_path} deploy", anything)
+    context "when using Capistrano v2" do
+      before { self.should_receive(:capistrano_v3?).and_return(false) }
 
-      run_capistrano("deploy")
+      it "runs capistrano when pulsar is invoked from outside the application directory" do
+        self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} -f #{capfile_path} deploy", anything)
+
+        run_capistrano("custom_stage", "deploy")
+      end
+
+      it "runs capistrano when pulsar is invoked from inside the application directory" do
+        self.stub!(:application_path).and_return("/app/path")
+
+        self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} APP_PATH=#{application_path} -f #{capfile_path} deploy", anything)
+
+        run_capistrano("custom_stage", "deploy")
+      end
     end
 
-    it "runs capistrano when pulsar is invoked from inside the application directory" do
-      self.stub!(:application_path).and_return("/app/path")
+    context "when using Capistrano v3" do
+      before { self.should_receive(:capistrano_v3?).and_return(true) }
 
-      self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} APP_PATH=#{application_path} -f #{capfile_path} deploy", anything)
+      it "runs capistrano when pulsar is invoked from outside the application directory" do
+        self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} -f #{capfile_path} custom_stage deploy", anything)
 
-      run_capistrano("deploy")
+        run_capistrano("custom_stage", "deploy")
+      end
+
+      it "runs capistrano when pulsar is invoked from inside the application directory" do
+        self.stub!(:application_path).and_return("/app/path")
+
+        self.should_receive(:run_cmd).with("bundle exec cap CONFIG_PATH=#{config_path} APP_PATH=#{application_path} -f #{capfile_path} custom_stage deploy", anything)
+
+        run_capistrano("custom_stage", "deploy")
+      end
     end
   end
 end

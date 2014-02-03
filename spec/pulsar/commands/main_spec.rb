@@ -273,6 +273,15 @@ describe Pulsar::MainCommand do
     context "when using Capistrano v2" do
       before { stub_capistrano_version_check(2) }
 
+      it "adds log_level before base configuration" do
+        first = Regexp.escape('logger.level = Capistrano::Logger::IMPORTANT')
+        last = Regexp.quote('# This is apps/base.rb')
+
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should match(/#{first}.*#{last}/m)
+      end
+
       it "defaults to IMPORTANT" do
         pulsar.run(full_cap_args + dummy_app)
 
@@ -317,46 +326,74 @@ describe Pulsar::MainCommand do
     end
 
     context "when using Capistrano v3" do
+      it "adds log_level after base configuration" do
+        first = Regexp.quote('# This is apps/base.rb')
+        last = Regexp.escape('Rake::Task.define_task("load:defaults") { set :log_level, :fatal }')
+
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should match(/#{first}.*#{last}/m)
+      end
+
+      it "adds stage configuration after base configuration" do
+        cap_config = <<-CONF.unindent
+          task \"production\" do
+            set(:stage, \"production\".to_sym)
+
+            invoke \"load:defaults\"
+            load \"capistrano/\#{fetch(:scm)}.rb\"
+            configure_backend
+          end
+        CONF
+
+        first = Regexp.quote('# This is apps/base.rb')
+        last = Regexp.escape(cap_config)
+
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should match(/#{first}.*#{last}/m)
+      end
+
       it "defaults to :fatal" do
         pulsar.run(full_cap_args + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :fatal)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :fatal }")
       end
 
       it "uses :fatal when 'fatal'" do
         pulsar.run(full_cap_args + %w(--log-level fatal) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :fatal)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :fatal }")
       end
 
       it "uses :error when 'error'" do
         pulsar.run(full_cap_args + %w(--log-level error) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :error)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :error }")
       end
 
       it "uses :warn when 'warn'" do
         pulsar.run(full_cap_args + %w(--log-level warn) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :warn)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :warn }")
       end
 
       it "uses :info when 'info'" do
         pulsar.run(full_cap_args + %w(--log-level info) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :info)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :info }")
       end
 
       it "uses :debug when 'debug'" do
         pulsar.run(full_cap_args + %w(--log-level debug) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :debug)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :debug }")
       end
 
       it "uses :trace when 'trace'" do
         pulsar.run(full_cap_args + %w(--log-level trace) + dummy_app)
 
-        latest_capfile.should include("set(:log_level, :trace)")
+        latest_capfile.should include("Rake::Task.define_task(\"load:defaults\") { set :log_level, :trace }")
       end
     end
   end

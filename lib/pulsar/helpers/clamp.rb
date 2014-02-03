@@ -24,12 +24,22 @@ module Pulsar
 
         def build_capfile(app, stage)
           # Variables
-          set_log_level
-          include_base_conf
+          capistrano_v3? ? build_conf_for_cap_v3(stage) : build_conf_for_cap_v2
           include_app(app, stage) if app
 
           # Recipes
           include_app_recipes(app, stage) if app
+        end
+
+        def build_conf_for_cap_v2
+          set_log_level_for_cap_v2
+          include_base_conf
+        end
+
+        def build_conf_for_cap_v3(stage)
+          include_base_conf
+          set_log_level_for_cap_v3
+          set_capistrano_v3_stage_config(stage)
         end
 
         def bundle_install
@@ -201,24 +211,42 @@ module Pulsar
           rm_rf(config_path, :verbose => verbose?)
         end
 
-        def run_capistrano(args)
+        def run_capistrano(stage, args)
           cmd = "bundle exec cap"
           env = "CONFIG_PATH=#{config_path}"
           opts = "-f #{capfile_path}"
+          cmd_args = args.dup
 
           env += " APP_PATH=#{application_path}" unless application_path.nil?
+          cmd_args.prepend("#{stage} ") if capistrano_v3?
 
           cd(config_path, :verbose => verbose?) do
-            run_cmd("#{cmd} #{env} #{opts} #{args}", :verbose => verbose?)
+            run_cmd("#{cmd} #{env} #{opts} #{cmd_args}", :verbose => verbose?)
           end
         end
 
-        def set_log_level
-          cap_config = if capistrano_v3?
-            "set(:log_level, :#{log_level_cap_v3.downcase})"
-          else
-            "logger.level = Capistrano::Logger::#{log_level_cap_v2}"
-          end
+        def set_capistrano_v3_stage_config(stage)
+          cap_config = <<-CONF.unindent
+            task \"#{stage}\" do
+              set(:stage, \"#{stage}\".to_sym)
+
+              invoke \"load:defaults\"
+              load \"capistrano/\#{fetch(:scm)}.rb\"
+              configure_backend
+            end
+          CONF
+
+          run_cmd("echo '#{cap_config}' >> #{capfile_path}", :verbose => verbose?)
+        end
+
+        def set_log_level_for_cap_v3
+          cap_config = "Rake::Task.define_task(\"load:defaults\") { set :log_level, :#{log_level_cap_v3.downcase } }"
+
+          run_cmd("echo '#{cap_config}' >> #{capfile_path}", :verbose => verbose?)
+        end
+
+        def set_log_level_for_cap_v2
+          cap_config = "logger.level = Capistrano::Logger::#{log_level_cap_v2}"
 
           run_cmd("echo '#{cap_config}' >> #{capfile_path}", :verbose => verbose?)
         end

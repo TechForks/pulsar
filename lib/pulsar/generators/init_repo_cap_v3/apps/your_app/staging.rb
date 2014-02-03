@@ -1,6 +1,6 @@
 server "your_app.com", roles: %w{db web app}
 
-set :stage, "staging"
+set :stage, lambda { "staging" }
 
 load_recipes do
   #

@@ -4,8 +4,8 @@ gem 'pulsar'
 gem 'capistrano', '~> 3.1'
 
 # Additional Capistrano tasks
-gem 'capistrano-rails', require: 'capistrano/rails'
-gem 'capistrano-bundler', require: 'capistrano/bundler'
+gem 'capistrano-rails'
+gem 'capistrano-bundler'
 
 # Ruby Version Managers tasks
 # gem 'capistrano/rvm', require: 'capistrano/rvm'

@@ -17,13 +17,13 @@ module Pulsar
 
       def run_cmd(cmd, opts)
         puts "Command: #{cmd.white}".yellow if opts[:verbose]
-        system(cmd)
+        result = system(cmd)
 
         unless opts[:no_exception]
           raise "Command #{cmd} Failed" if $? != 0
         end
 
-        $?
+        result || false
       end
 
       def touch(file, opts)

@@ -37,7 +37,7 @@ module Pulsar
 
             unless skip_cap_run?
               cap_args = [ tasks_list ].flatten.shelljoin
-              run_capistrano(cap_args)
+              run_capistrano(stage, cap_args)
             end
 
             remove_capfile unless keep_capfile?
