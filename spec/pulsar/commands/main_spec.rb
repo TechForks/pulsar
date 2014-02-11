@@ -136,6 +136,36 @@ describe Pulsar::MainCommand do
       latest_capfile.should include("# This is apps/base.rb")
     end
 
+    context "when using Capistrano v2" do
+      before { stub_capistrano_version_check(2) }
+
+      it "does not use a generic defaults.rb file in staging stage" do
+        pulsar.run(full_cap_args + dummy_app(:staging))
+
+        latest_capfile.should_not include("# This is apps/defaults.rb")
+      end
+
+      it "does not use a generic defaults.rb file in production stage" do
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should_not include("# This is apps/defaults.rb")
+      end
+    end
+
+    context "when using Capistrano v3" do
+      it "also uses a generic defaults.rb file in staging stage" do
+        pulsar.run(full_cap_args + dummy_app(:staging))
+
+        latest_capfile.should include("# This is apps/defaults.rb")
+      end
+
+      it "also uses a generic defaults.rb file in production stage" do
+        pulsar.run(full_cap_args + dummy_app)
+
+        latest_capfile.should include("# This is apps/defaults.rb")
+      end
+    end
+
     it "uses defaults.rb in staging stage" do
       pulsar.run(full_cap_args + dummy_app(:staging))
 

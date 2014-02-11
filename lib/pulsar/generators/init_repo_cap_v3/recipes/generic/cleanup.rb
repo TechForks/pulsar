@@ -1,52 +1,41 @@
 # encoding: utf-8
 
-if fetch(:log_level) == :warn
-  arrow = "→".yellow.bold
-  ok = "✓".green
+after "load:defaults", "cleanup" do
+  if [ :warn, :error, :fatal ].include?(fetch(:log_level))
+    arrow = "→".yellow.bold
+    ok = "✓".green
 
-  before "deploy:update_code", "cleanup:update_code" do
-    SpinningCursor.start do
-      banner "#{arrow} Updating Code"
-      message "#{arrow} Updating Code #{ok}"
+    before "deploy:starting", "cleanup:starting" do
+      SpinningCursor.start do
+        banner "#{arrow} Starting Deploy"
+        message "#{arrow} Starting Deploy #{ok}"
+      end
     end
-  end
 
-  before "bundle:install", "cleanup:bundle_install" do
-    SpinningCursor.start do
-      banner "#{arrow} Installing Gems"
-      message "#{arrow} Installing Gems #{ok}"
+    after "deploy:started", "cleanup:started" do
+      SpinningCursor.stop
     end
-  end
 
-  before "deploy:assets:symlink", "cleanup:symlink_assets" do
-    SpinningCursor.start do
-      banner "#{arrow} Symlinking Assets"
-      message "#{arrow} Symlinking Assets #{ok}"
+    before "deploy:publishing", "cleanup:publishing" do
+      SpinningCursor.start do
+        banner "#{arrow} Publishing Code"
+        message "#{arrow} Publishing Code #{ok}"
+      end
     end
-  end
 
-  before "deploy:assets:precompile", "cleanup:precompile_assets" do
-    SpinningCursor.start do
-      banner "#{arrow} Compiling Assets"
-      message "#{arrow} Compiling Assets #{ok}"
+    after "deploy:published", "cleanup:published" do
+      SpinningCursor.stop
     end
-  end
 
-  before "deploy:create_symlink", "cleanup:symlink" do
-    SpinningCursor.start do
-      banner "#{arrow} Symlinking Application"
-      message "#{arrow} Symlinking Application #{ok}"
+    before "deploy:finishing", "cleanup:finishing" do
+      SpinningCursor.start do
+        banner "#{arrow} Cleaning Up"
+        message "#{arrow} Cleaning Up #{ok}"
+      end
     end
-  end
 
-  before "deploy:restart", "cleanup:restart_webserver" do
-    SpinningCursor.start do
-      banner "#{arrow} Restarting Webserver"
-      message "#{arrow} Restarting Webserver #{ok}"
+    after "deploy:finished", "cleanup:finished" do
+      SpinningCursor.stop
     end
-  end
-
-  after "deploy", "cleanup:stop" do
-    SpinningCursor.stop
   end
 end

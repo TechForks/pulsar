@@ -33,6 +33,10 @@ module Pulsar
         "#{config_apps_path}/base.rb"
       end
 
+      def config_defaults_path
+        "#{config_apps_path}/defaults.rb"
+      end
+
       def config_stage_path(app, stage)
         "#{config_app_path(app)}/#{stage}.rb"
       end

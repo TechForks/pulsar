@@ -39,6 +39,7 @@ module Pulsar
         def build_conf_for_cap_v3(stage)
           include_base_conf
           set_log_level_for_cap_v3
+          include_defaults_conf
           set_capistrano_v3_stage_config(stage)
         end
 
@@ -151,6 +152,10 @@ module Pulsar
 
         def include_base_conf
           run_cmd("cat #{config_base_path} >> #{capfile_path}", :verbose => verbose?)
+        end
+
+        def include_defaults_conf
+          run_cmd("cat #{config_defaults_path} >> #{capfile_path}", :verbose => verbose?)
         end
 
         def list_apps
